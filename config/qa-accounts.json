@@ -1,19 +1,19 @@
 {
   "_doc": "QA accounts per repo and environment. Mode 600; never committed, never printed in summaries or receipts. 'main' is the account used for most scenarios. The 'guest' entry is not an account: Checkout v2 with a throwaway email on a real domain is the guest path. Saved browser login state lives in ~/.claude/qa/state/<repo>-<env>-<role>.json and is reused until it expires.",
-  "zaikoio": {
+  "example-repo": {
     "dev": {
       "main": {
-        "email": "futarokun@gmail.com",
-        "password": "12345678qwer",
-        "note": "test account on the dev database; used for most scenarios"
+        "email": "",
+        "password": "",
+        "note": ""
       },
       "guest": {
-        "note": "Checkout v2 with a throwaway email such as someone+qa@gmail.com; no login"
+        "note": ""
       },
       "staff": {
-        "email": "qa-staff@zaiko.dev",
-        "password": "12345678qwer",
-        "note": "super admin (staff team 1) on the dev database, for Nerv scenarios; staff needs a zaiko.dev email because the dev box runs APP_ENV=local"
+        "email": "",
+        "password": "",
+        "note": ""
       }
     }
   }

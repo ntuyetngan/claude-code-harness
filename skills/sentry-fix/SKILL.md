@@ -1,6 +1,6 @@
 ---
 name: sentry-fix
-description: Take one Sentry issue from trace to a verified, uncommitted fix with a regression test written first. Fetches the issue through the Sentry MCP, dispatches the read-only tracer agent, classifies CODE_BUG, INFRA_BLIP, DATA, or NEEDS_HUMAN, asks for your go on CODE_BUG only, writes the failing test, locks tests/, fixes minimally, verifies, and hands over a summary with the Fixes line the repo expects. Manual-only; run as "/sentry-fix ZAIKO-BACKEND-K14" or with the issue URL.
+description: Take one Sentry issue from trace to a verified, uncommitted fix with a regression test written first. Fetches the issue through the Sentry MCP, dispatches the read-only tracer agent, classifies CODE_BUG, INFRA_BLIP, DATA, or NEEDS_HUMAN, asks for your go on CODE_BUG only, writes the failing test, locks tests/, fixes minimally, verifies, and hands over a summary with the Fixes line the repo expects. Manual-only; run as "/sentry-fix PROJECT-K14" or with the issue URL.
 argument-hint: '[sentry short id or url]'
 disable-model-invocation: true
 ---

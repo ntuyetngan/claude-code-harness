@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PreToolUse(Edit|Write|MultiEdit|NotebookEdit): refuse edits in guarded areas and during locked phases.
 #
-# Areas (zaikoio only): nuxt and schema (database/schema) block; legacy and lang (non-en locale files) only warn.
+# Areas (your-org/your-repo only): nuxt and schema (database/schema) block; legacy and lang (non-en locale files) only warn.
 # Any repo: secrets (.env*, auth.json, *.pem, *.key) are never editable; while the repo phase is "fix"
 # (test-first), the regression test files phase.sh recorded are locked, or all of tests/ when it named none.
 #
@@ -40,7 +40,7 @@ if [ "$ph" = fix ]; then
   esac
 fi
 
-if git -C "$ROOT" remote get-url origin 2>/dev/null | grep -q 'zaikoio/zaikoio'; then
+if git -C "$ROOT" remote get-url origin 2>/dev/null | grep -q 'your-org/your-repo'; then
   area=""
   case "$rel" in
     legacy/*|legacy_public/*) area=legacy ;;
@@ -52,7 +52,7 @@ if git -C "$ROOT" remote get-url origin 2>/dev/null | grep -q 'zaikoio/zaikoio';
   # legacy and non-en locales are edited on purpose often enough (legacy bugs, translation requests)
   # that they warn instead of block. nuxt and the schema dump still block.
   case "$area" in
-    legacy) hook_log "WARN $rel (legacy)"; jq -n --arg m "Reminder: $rel is under legacy/. Keep the diff surgical, follow the existing pattern, no refactors (zaikoio-legacy-guardrails). Say in the summary that legacy was touched." '{hookSpecificOutput:{hookEventName:"PreToolUse",additionalContext:$m}}'; exit 0 ;;
+    legacy) hook_log "WARN $rel (legacy)"; jq -n --arg m "Reminder: $rel is under legacy/. Keep the diff surgical, follow the existing pattern, no refactors (legacy-guardrails). Say in the summary that legacy was touched." '{hookSpecificOutput:{hookEventName:"PreToolUse",additionalContext:$m}}'; exit 0 ;;
     lang)   hook_log "WARN $rel (lang)"; jq -n --arg m "Reminder: $rel is a non-en locale file shared with Crowdin. A committed value becomes the approved translation until a translator changes it; never assert on it in tests (translation-source-of-truth)." '{hookSpecificOutput:{hookEventName:"PreToolUse",additionalContext:$m}}'; exit 0 ;;
   esac
   if [ -n "$area" ] && ! allowed "$area"; then

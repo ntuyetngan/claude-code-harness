@@ -1,7 +1,7 @@
 ---
 name: planner
 description: Turn a ticket, Sentry issue, feature ask, or bug report into an approved plan file before any code changes. Enters Plan Mode itself, confirms the goal and expected output first, sweeps every surface the change touches, asks with AskUserQuestion whenever a decision or uncertainty remains, never guesses, and hands the finished plan to Plan Mode's own approval. That approval is the one human gate before the PR: after it the session implements, verifies, audits, runs browser QA and hands off by itself, asking only on a deviation. Manual-only; invoke as "/planner ZAI-12345", "/planner <sentry url>", or "/planner <ask>". Pasted review findings belong to /review-findings, not here.
-argument-hint: '[ZAI-nnnnn | sentry issue | short ask]'
+argument-hint: '[TEAM-nnnnn | sentry issue | short ask]'
 disable-model-invocation: true
 ---
 
@@ -25,7 +25,7 @@ Produce a plan the user can approve without reading the conversation. The plan i
 
 Read `$ARGUMENTS`.
 
-- `ZAI-nnnnn` → fetch the issue through the Linear MCP: title, description, comments, attachments, linked branch or PR.
+- `TEAM-nnnnn` → fetch the issue through the Linear MCP: title, description, comments, attachments, linked branch or PR.
 - A Sentry URL or short id → fetch it through the Sentry MCP: title, stack trace, affected release, event count.
 - Free text → the ask itself.
 - Nothing → ask what to plan, one question.
@@ -51,7 +51,7 @@ One AskUserQuestion, before any interview. Restate in your own words:
 - **Goal**: what changes for the user or system.
 - **Expected output**: the concrete deliverables, each on its own line. Code paths, behavior, tests, docs page.
 - **Done when**: the observable proof.
-- **Branch and PR title**: the branch `YYYYMMDD-<task-slug>` (today's date, a short kebab-case slug) and the title `[ZAI-nnnnn][Area] Description`, `[<SENTRY-SHORT-ID>][Area] Description` or `[No Linear][Area] Description`, Area being the repo's prefix for that surface (POS, ZCS, Nerv, Microsite). Confirming the contract confirms both; /handoff uses them without asking again.
+- **Branch and PR title**: the branch `YYYYMMDD-<task-slug>` (today's date, a short kebab-case slug) and the title `[TEAM-nnnnn][Area] Description`, `[<SENTRY-SHORT-ID>][Area] Description` or `[No Linear][Area] Description`, Area being the repo's prefix for that surface (Admin, Checkout). Confirming the contract confirms both; /handoff uses them without asking again.
 
 Offer "That is right" first, then one or two alternative readings you consider plausible. If the ask could mean materially different work, each reading is an option. Do not proceed until one is confirmed; "Other" answers replace your restatement verbatim.
 
@@ -73,7 +73,7 @@ Only decisions that change the plan. Compact batches of three to five strong que
 - Whether a noticed adjacent problem is in scope. Default is out.
 - Feature flag or no flag, when the repo uses one nearby.
 - Which docs page takes the rationale.
-- Whether the change needs a browser run on the dev host before handoff (a QA receipt). Ask it whenever the change touches something a person sees or clicks: Vue, Blade, routes, controllers, middleware, mail. Record the answer in the plan as `QA: required` or `QA: not needed`, with the scenarios to check when required, drawn from "Done when". Say in the question that `required` also approves copying the changed files to the dev box for that run, and running any migration the plan adds there; plan approval is the only approval the sync gets. Pick each scenario's account from its route: `as: staff` for anything under `/nerv`, `as: main` for the account-holder surfaces, `as: guest` for Checkout v2. A scenario that needs a payment-gateway action (a real refund, charge or payout) is not browser-testable on the dev box: write it as `not browser-testable: <reason>` under QA scenarios, so it is not discovered at QA time.
+- Whether the change needs a browser run on the dev host before handoff (a QA receipt). Ask it whenever the change touches something a person sees or clicks: Vue, Blade, routes, controllers, middleware, mail. Record the answer in the plan as `QA: required` or `QA: not needed`, with the scenarios to check when required, drawn from "Done when". Say in the question that `required` also approves copying the changed files to the dev box for that run, and running any migration the plan adds there; plan approval is the only approval the sync gets. Pick each scenario's account from its route: `as: staff` for anything under `/admin`, `as: main` for the account-holder surfaces, `as: guest` for Checkout v2. A scenario that needs a payment-gateway action (a real refund, charge or payout) is not browser-testable on the dev box: write it as `not browser-testable: <reason>` under QA scenarios, so it is not discovered at QA time.
 
 Do not ask for: stack details, conventions visible in nearby code, restatements, or preferences that do not change the plan. If nothing is uncertain after the sweep, skip this step and say so.
 
@@ -118,8 +118,8 @@ Call `ExitPlanMode`. It shows the plan file and asks the user to approve or send
 - Asked to implement while the skill is active: stay in Plan Mode and say implementation starts once the plan is approved through `ExitPlanMode`.
 
 ## Learned
-- QA scenario lines for any `/nerv` page use `as: staff` (qa-staff@zaiko.dev, super admin on the dev DB); `as: main` is a gmail account and Nerv answers it with 404.
-- A "doesn't display right on mobile" ticket under a parent with a Figma mobile frame: fetch that frame before the goal contract and offer the design as a reading; the user chose the Figma cards over the minimal scroll fix (ZCS monthly payout).
-- A layout choice the repo already answers (breakpoint, CSS vs JS switch) is researched, not asked: count the sibling patterns (`md:hidden` in zcs/) and state the one you follow.
-- Before planning a JS module for control icons, grep the stylesheet for an existing icon pattern; zaikolive draws video.js icons as SCSS data-URI mask-images ($theater-mode-icon-*), and the user chose that over the planned playerIcons.js (player UI v2, 2026-10-08).
+- QA scenario lines for any `/admin` page use `as: staff` (qa-staff@example.dev, super admin on the dev DB); `as: main` is a gmail account and Admin answers it with 404.
+- A "doesn't display right on mobile" ticket under a parent with a Figma mobile frame: fetch that frame before the goal contract and offer the design as a reading; the user chose the Figma cards over the minimal scroll fix.
+- A layout choice the repo already answers (breakpoint, CSS vs JS switch) is researched, not asked: count the sibling patterns (`md:hidden` in the surface's folder) and state the one you follow.
+- Before planning a JS module for control icons, grep the stylesheet for an existing icon pattern; one repo draws video.js icons as SCSS data-URI mask-images ($theater-mode-icon-*), and the user chose that over the planned playerIcons.js.
 - A layout-bug QA scenario reproduces the exact state in the ticket screenshot (ZAI-16342: Currency was also a select, which needs events in two currencies), names the recipe that builds that state, and asks for wide screenshots framed like the ticket plus a close-up. A scenario that only shows the fixed element in a different state was rejected by the user.

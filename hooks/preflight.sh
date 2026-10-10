@@ -79,14 +79,14 @@ if is_laravel "$ROOT"; then
   fi
   if engine_up; then
     row GREEN "docker engine" "up"
-    for c in zaiko-mysql zaiko-redis; do
+    for c in app-mysql app-redis; do
       st="$(timeout 10 "$DOCKER_EXE" inspect -f '{{.State.Status}}' "$c" 2>/dev/null)"
       if [ "$st" != running ]; then timeout 30 "$DOCKER_EXE" start "$c" >/dev/null 2>&1; fi
     done
     ok=1
     for _ in $(seq 1 30); do tcp_open 127.0.0.1 3306 && tcp_open 127.0.0.1 6379 && break; sleep 2; done
-    tcp_open 127.0.0.1 3306 && row GREEN "zaiko-mysql" "port 3306 open" || { ok=0; row RED "zaiko-mysql" "container not reachable on 3306: docker.exe logs zaiko-mysql"; }
-    tcp_open 127.0.0.1 6379 && row GREEN "zaiko-redis" "port 6379 open" || { ok=0; row RED "zaiko-redis" "container not reachable on 6379: docker.exe logs zaiko-redis"; }
+    tcp_open 127.0.0.1 3306 && row GREEN "app-mysql" "port 3306 open" || { ok=0; row RED "app-mysql" "container not reachable on 3306: docker.exe logs app-mysql"; }
+    tcp_open 127.0.0.1 6379 && row GREEN "app-redis" "port 6379 open" || { ok=0; row RED "app-redis" "container not reachable on 6379: docker.exe logs app-redis"; }
     if [ "$ok" = 1 ]; then
       pending="$(cd "$ROOT" && timeout 120 php artisan --env=testing migrate:status 2>/dev/null | grep -c Pending)"
       if [ -z "$pending" ]; then row RED "test db migrations" "migrate:status timed out or failed on the testing connection"
@@ -109,7 +109,7 @@ if is_laravel "$ROOT"; then
   ph="$(jq -r '.host // ""' <<<"$pj")"; pu="$(jq -r '.user // ""' <<<"$pj")"; pp="$(jq -r '.port // 22' <<<"$pj")"; pk="$(jq -r '.key // ""' <<<"$pj")"; pk="${pk/#\~/$HOME}"
   case "$ph" in ""|null|CHANGE_ME*) row GREEN "dev box" "not configured for $REPO (optional): set dev.host/user/port/key/path in ~/.claude/config/projects.json to enable /qa syncing" ;;
     *) if timeout 15 ssh -o BatchMode=yes -o ConnectTimeout=8 -p "$pp" ${pk:+-i "$pk" -o IdentitiesOnly=yes} "${pu:+$pu@}$ph" true >/dev/null 2>&1; then row GREEN "dev box" "${pu:+$pu@}$ph:$pp answers over ssh"
-       else row RED "dev box" "${pu:+$pu@}$ph:$pp does not answer over ssh: check the Zaiko VPN (PPP adapter 'Zaiko'), the key at $pk, and that the port is the one in projects.json (the box listens on 9999, not 22). /qa cannot sync until then"; fi ;; esac
+       else row RED "dev box" "${pu:+$pu@}$ph:$pp does not answer over ssh: check the company VPN, the key at $pk, and that the port is the one in projects.json. /qa cannot sync until then"; fi ;; esac
   tcp_open 127.0.0.1 3307 && row GREEN "rds tunnel" "127.0.0.1:3307 listening (read-only dev DB)" || row GREEN "rds tunnel" "down; only needed for RDS queries, start with ./db-tunnel.sh"
 fi
 

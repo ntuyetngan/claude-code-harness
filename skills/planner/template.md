@@ -1,9 +1,9 @@
 # <slug>: <one-line title>
 
-Source: <Linear ZAI-nnnnn url | Sentry short id url | "ask">
+Source: <Linear TEAM-nnnnn url | Sentry short id url | "ask">
 Repo: <repo>
 Branch: <YYYYMMDD-task-slug, created by /handoff>
-PR title: <[ZAI-nnnnn|SENTRY-ID|No Linear][Area] Description>
+PR title: <[TEAM-nnnnn|SENTRY-ID|No Linear][Area] Description>
 Status: draft | approved | in progress | done | dropped
 QA: required | not needed   <!-- browser run on the dev host before handoff; asked during planning -->
 Created: <YYYY-MM-DD>
@@ -57,7 +57,7 @@ Current phase: <n of N, or "single">
 
 ## QA scenarios
 <!-- Only when QA is required. One line each, from "Done when": what to open, what to do, what must be true.
-     Prefixes: "as: main" (the account holder), "as: staff" (any /nerv page), "as: guest" (Checkout v2); "recipe: <name>" to build the data on the dev box first;
+     Prefixes: "as: main" (the account holder), "as: staff" (any /admin page), "as: guest" (Checkout v2); "recipe: <name>" to build the data on the dev box first;
      a line that needs a payment-gateway action reads "not browser-testable: <reason>" instead of steps
      (see ~/.claude/hooks/qa-recipe.sh list); "page: <name>" for a named page from projects.json qa.pages. -->
 - as: main — recipe: <name> — <url, page: name, or a URL the recipe returns> — <action> — <expected>
@@ -73,7 +73,7 @@ Current phase: <n of N, or "single">
      for single-PR plans. -->
 
 ### Phase 1 of N: <title>
-PR title: `[ZAI-nnnnn][Area] <short description>`
+PR title: `[TEAM-nnnnn][Area] <short description>`
 Branch: <branch>
 Status: not started | in progress | PR opened <url> | merged
 Depends on: none | phase <n> merged on production
@@ -85,7 +85,7 @@ Safe while later phases are unmerged because: <reason: both deploy tiers tolerat
 - [ ] Docs: `<docs/...>` updated
 
 ### Phase 2 of N: <title>
-PR title: `[ZAI-nnnnn][Area] <short description>`
+PR title: `[TEAM-nnnnn][Area] <short description>`
 Branch: <branch>
 Status: not started
 Depends on: phase 1 merged on production
