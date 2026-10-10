@@ -1,0 +1,24 @@
+{
+  "_doc": "Thresholds for the quality gates in ~/.claude/hooks/verify.sh and mutation.sh. Edit freely; every run appends to ~/.claude/loop-state/quality/<repo>.jsonl so the trend is visible. CRAP per method = CC^2 * uncovered^3 + CC (CC = cyclomatic complexity, uncovered = 1 - coverage). Only methods whose lines the diff touches are scored. Mutation uses Pest's built-in --mutate on the changed classes with the mapped tests.",
+  "pest": {
+    "shards": 4,
+    "shard_timeout_seconds": 1800,
+    "_doc": "verify.sh runs the chosen pest files in this many shards at once, one provisioned <db>_test_<n> database each (LARAVEL_PARALLEL_TESTING + TEST_TOKEN); coverage dumps are merged by merge-coverage.php"
+  },
+  "crap": {
+    "max": 30,
+    "scope": "changed-methods",
+    "runs_in": "verify",
+    "rule": "ratchet: above max is RED only when the diff made the method worse (new, complexity grew, or a changed line uncovered); otherwise DEBT, listed, not blocking"
+  },
+  "mutation": {
+    "enabled": true,
+    "min_msi": 60,
+    "parallel": true,
+    "processes": 6,
+    "runs_in": "handoff, after the push; advisory, never blocks the PR",
+    "scope": "lines this diff added in the changed classes (hooks/mutate-lines.php overrides Pest's generator), covered lines only; falls back to the whole class if the override does not load, and the receipt says so; on timeout the receipt is PARTIAL unless a survivor sits on an added line",
+    "timeout_seconds": 1200,
+    "tool": "pest --mutate --covered-only --parallel"
+  }
+}

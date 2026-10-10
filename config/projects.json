@@ -1,0 +1,161 @@
+{
+  "_doc": "Per-project settings for the loop: how the change reaches the dev box, what must be built on Windows first, and where to test. Keyed by the repo directory name. Edit freely; nothing here is committed to any repo.",
+  "zaikoio": {
+    "dev": {
+      "ssh": "devbox",
+      "host": "43.206.230.172",
+      "user": "ngan.nguyen",
+      "key": "~/.ssh/devbox_jumpcloud",
+      "path": "/home/ngan.nguyen/code/zaikoio",
+      "_doc": "ssh alias 'devbox' in ~/.ssh/config (WSL): 43.206.230.172 port 9999, user ngan.nguyen, key ~/.ssh/devbox_jumpcloud. Found in WinSCP 'Devbox' and PuTTY 'Devbox2024' on 2026-09-28; host reports itself as dev-ngan-nguyen.",
+      "port": 9999
+    },
+    "sync": {
+      "excludes": [
+        ".git/",
+        ".idea/",
+        ".husky/",
+        ".jira/",
+        "storage/",
+        "mutagen.yml",
+        "mutagen.yml.lock",
+        ".DS_Store",
+        ".sync.inc",
+        "docker/",
+        "docker-compose.yml",
+        ".phpstan.cache/",
+        "node_modules/",
+        "nuxt/",
+        "webpack/node_modules/",
+        ".env",
+        ".env.*",
+        "auth.json"
+      ],
+      "include_after_build": []
+    },
+    "frontend": {
+      "_doc": "Each build runs on Windows through cmd.exe when one of its triggers changed. A changed path under resources/ that matches no specific build runs every build. Outputs are gitignored, so they are copied as include_after_build.",
+      "runs_on": "windows",
+      "builds": [
+        {
+          "name": "nerv",
+          "triggers": [
+            "resources/js/nerv.ts",
+            "resources/js/Pages/Nerv/",
+            "resources/js/components/Nerv",
+            "resources/css/email-log.css",
+            "vite.nerv.config.ts",
+            "resources/lang-frontend/nerv/"
+          ],
+          "command": "npm run build-only:nerv",
+          "output": "public/build/nerv/"
+        },
+        {
+          "name": "zcs",
+          "triggers": [
+            "resources/js/zcs.ts",
+            "resources/js/Pages/Zcs/",
+            "resources/js/components/Zcs",
+            "vite.zcs.config.ts",
+            "resources/lang-frontend/zcs/"
+          ],
+          "command": "npm run build-only:zcs",
+          "output": "public/build/zcs/"
+        },
+        {
+          "name": "microsite",
+          "triggers": [
+            "resources/js/inertia.ts",
+            "resources/js/Pages/",
+            "resources/js/layouts/",
+            "resources/css/app.css",
+            "resources/css/microsite.css",
+            "vite.config.ts",
+            "resources/lang-frontend/microsite/"
+          ],
+          "command": "npm run build-only",
+          "output": "public/build/inertia/"
+        }
+      ],
+      "any_build_triggers": [
+        "resources/js/",
+        "resources/css/",
+        "resources/lang-frontend/shared/",
+        "package.json"
+      ]
+    },
+    "remote_after_sync": [
+      "php artisan optimize:clear"
+    ],
+    "qa": {
+      "base_url": "https://zaiko.dev",
+      "other_urls": [
+        "https://creators.zaiko.dev"
+      ],
+      "notes": "Never production (*.zaiko.io). Turnstile is non-blocking on dev. Headed browser only.",
+      "accounts_file": "~/.claude/config/qa-accounts.json",
+      "state_dir": "~/.claude/qa/state",
+      "recipes_dir": "~/.claude/qa/recipes",
+      "remote_recipe_dir": "storage/app/qa-recipes",
+      "pages": {
+        "login": "https://zaiko.dev/login",
+        "zcs_login": "https://creators.zaiko.dev/login",
+        "item": "https://{profile_code}.zaiko.dev/item/{event_id}",
+        "buy_v1": "https://{profile_code}.zaiko.dev/buy/{item_data}",
+        "buy_v2": "https://{profile_code}.zaiko.dev/v2/buy/{item_data}/",
+        "eticket": "https://zaiko.dev/account/eticket/{ticket_code}",
+        "stream": "https://zaiko.dev/event/{event_id}/stream/{ticket_id}/{stream_id}",
+        "zcs_event_edit": "https://creators.zaiko.dev/{profile_code}/events/{event_id}/edit",
+        "nerv_event": "https://zaiko.dev/nerv/events/{event_id}"
+      },
+      "_pages_doc": "Named pages a scenario may refer to as page:<name>; {placeholders} are filled from a recipe result or the scenario. Filled in from the route files.",
+      "browser_config": "~/.claude/qa/playwright-cli.config.json",
+      "browser_config_doc": "Pass as --config on every playwright-cli open. Its Chrome flag --host-resolver-rules pins *.zaiko.dev to the dev box, because the public wildcard DNS sends microsite subdomains such as qa-live.zaiko.dev to another dev stack (3.166.x.x, AWS) whose build differs from the box. zaiko.dev, creators.zaiko.dev and cdn.zaiko.dev already point at the box."
+    }
+  },
+  "zaikolive": {
+    "_doc": "Fill dev.ssh when the repo is cloned here; the directory name must match this key. Per your note: the frontend build is `npm run dev`, then the public folder is synced.",
+    "dev": {
+      "ssh": "CHANGE_ME_user@host",
+      "key": "",
+      "path": "~/code/zaikolive"
+    },
+    "sync": {
+      "excludes": [
+        ".git/",
+        "node_modules/",
+        "storage/",
+        ".env",
+        ".env.*"
+      ],
+      "include_after_build": []
+    },
+    "frontend": {
+      "runs_on": "windows",
+      "builds": [
+        {
+          "name": "app",
+          "triggers": [
+            "resources/"
+          ],
+          "command": "npm run dev",
+          "output": "public/"
+        }
+      ],
+      "any_build_triggers": []
+    },
+    "remote_after_sync": [],
+    "qa": {
+      "base_url": "CHANGE_ME",
+      "other_urls": [],
+      "notes": ""
+    },
+    "test_env": {
+      "MYSQL_ATTR_SSL_CA": "",
+      "FEATURE_FLAG_PIPELINES": "database"
+    }
+  },
+  "_jump": {
+    "_doc": "PuTTY saved session found on 2026-09-28: deploy.zaiko.pw with key C:\\Users\\ngan.nguyen\\.ssh\\jumpcloud_key.ppk and no user name. WSL ssh needs the key in OpenSSH format (puttygen export), and a ProxyJump entry in ~/.ssh/config if the dev box sits behind it."
+  }
+}
